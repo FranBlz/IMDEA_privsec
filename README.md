@@ -25,6 +25,15 @@ Personal repository dedicated to my internship at IMDEA Software
 1. Opted for `pychrome` library since it offers the `call_method` function which seems to work ok and follows CDP method names in its parameters.
 2. Initially discarded copying the Cookie DB since it's encrypted, for now focusing only on CDP `getCookies`method as a full cookie jar.
 3. Implemented a `wait_for_port` method to enable both `cookies_CDP` and `mitmproxy` before booting up the browser instance and simulating browsing.
+4. Python venv aliased to "activate"
+
+### Issues
+
+1. Google detected unusual requests from network while using mitmproxy but not intercepting anything?
+2. Some TLS handshake error messages still appear
+3. What's the initial traffic shown by mitmproxy?
+4. How to isolate traffic to only the desired webpage
+5. How to automate the "Accept all cookies option for all webpages"
 
 ---
 
