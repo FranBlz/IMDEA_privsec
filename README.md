@@ -11,6 +11,11 @@ Personal repository dedicated to my internship at IMDEA Software
 3. Remove hard-coded address and port from framework and enable some sort of automatic selection.
 4. Complete the pipeline so it has simple input for navigation and extension and outputs basic results for each component and its comparison.
 5. Re-read SoK paper and inspect sources to add references and extend last paragraphs of thesis proposal.
+6. Achieve fresh replicability and instrumentation on a browser session.
+7. Check cookie location and readability on Chrome and Firefox.
+8. Read about partitioning cookies.
+9. Read about session cookies and develop a framework to inspect how prevalent they are.
+10. Develop framework to compare HTTP and total cookies set.
 
 ---
 
