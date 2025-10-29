@@ -16,6 +16,7 @@ Personal repository dedicated to my internship at IMDEA Software
 8. Read about partitioning cookies.
 9. Read about session cookies and develop a framework to inspect how prevalent they are.
 10. Develop framework to compare HTTP and total cookies set.
+11. Read more about firefox CLI arguments and its devtools protocol.
 
 ---
 

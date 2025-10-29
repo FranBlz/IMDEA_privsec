@@ -1,3 +1,4 @@
+import os
 import socket
 import pychrome # type: ignore
 
@@ -12,10 +13,10 @@ def wait_for_port(host: str, port: int):
             except (socket.timeout, ConnectionRefusedError):
                 pass
 
-wait_for_port("127.0.0.1", 1234)
+wait_for_port("127.0.0.1", 1235)
 
 # create a browser instance
-browser = pychrome.Browser(url="http://127.0.0.1:1234")
+browser = pychrome.Browser(url="http://127.0.0.1:1235")
 
 # create a tab
 tab = browser.new_tab()
@@ -28,14 +29,20 @@ tab.call_method("Page.navigate", url="https://instagram.com", _timeout=5)
 # wait for loading
 tab.wait(10)
 
+def format(cookie):
+    cookiestr = str(cookie)
+    cookiestr = cookiestr.replace("{", "")
+    cookiestr = cookiestr.replace("}", "\n")
+    cookiestr = cookiestr.replace("'", "")
+    cookiestr = cookiestr.replace(": ", "=")
+    cookiestr = cookiestr.replace(", ", "\n\t")
+    return cookiestr
+
 # get cookies
 cookies = tab.call_method("Network.getCookies")
-for cookie in cookies["cookies"]:
-    print ("Cookie:")
-    print ("\tName:", cookie["name"])
-    print ("\tValue:", cookie["value"])
-    print ("\tDomain:", cookie["domain"])
-    print ("\n")
+with open("./output/CDP_cookies", 'w') as output:
+    for cookie in cookies["cookies"]:
+        output.write(format(cookie))
 
 # stop and close the tab
 tab.stop()
