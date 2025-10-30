@@ -4,7 +4,7 @@ ADDRESS = 127.0.0.1
 DEV_PORT = 1235
 TMP_FLDR = /tmp/profiles/
 OUTPUT_FLDR = ./output/
-TEMPLATE = ./template/
+TEMPLATE = ./template_2/
 NSSDB_FLDR = $(TMP_FLDR)$(PORT)/.pki/nssdb
 MITM_CERT = /usr/local/share/ca-certificates/mitmproxy.crt
 
