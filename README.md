@@ -17,6 +17,8 @@ Personal repository dedicated to my internship at IMDEA Software
 9. Read about session cookies and develop a framework to inspect how prevalent they are.
 10. Develop framework to compare HTTP and total cookies set.
 11. Read more about firefox CLI arguments and its devtools protocol.
+12. Improve on cookie parsing in both CDP and mitmproxy scripts.
+13. Solve issues with both CDP and mitmproxy scripts.
 
 ---
 
@@ -59,6 +61,7 @@ OSError: [Errno 36] File name too long: \
 
 1. Created a clean browser template with manually imported mitmproxy ca-certificate and secure DNS disabled (because of weird behaviours between Chrome and Debian OS certificates).
 2. Created `template_2` to add extension "I still don't care about cookies" extension to browser template to bypass the consent requests on each site.
+3. Some cookies are featured on a list stored in `template_2`, possibly coming from the extensions used to bypass cookie consent warnings.
 
 ### General
 
@@ -78,6 +81,10 @@ OSError: [Errno 36] File name too long: \
 - [Official mitmproxy http doc](https://docs.mitmproxy.org/stable/api/mitmproxy/http.html)
 - [Pychrome library page](https://pypi.org/project/pychrome/)
 - [I still don't care about cookies extension](https://chromewebstore.google.com/detail/i-still-dont-care-about-c/edibdbjcniadpccecjdfdjjppcpchdlm)
+- [About partitioned cookies](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies)
+- [About session cookies](https://www.cookieyes.com/blog/session-cookies/)
+- [Free cookie checker](https://www.cookieyes.com/cookie-checker/)
+- [Similar cookie detection project](https://github.com/CookieChecker/CookieCheckSourceCode)
 
 ---
 
