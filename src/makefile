@@ -24,7 +24,7 @@ cdp:
 	mkdir -p $(TMP_FLDR)$(PORT)
 	cp -r $(TEMPLATE)* $(TMP_FLDR)$(PORT)/
 	
-	python3 cookies_CDP.py $(ADDRESS) $(PORT) $(DEV_PORT) "https://elpais.com" "https://instagram.com"
+	python3 cookie_logger.py cookies_mitm.py $(ADDRESS) $(PORT) $(DEV_PORT) "https://elpais.com" "https://instagram.com"
 
 proxy:
 	mitmproxy --listen-host $(ADDRESS) -p $(PORT) -s cookies_mitm.py

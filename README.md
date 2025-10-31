@@ -85,6 +85,7 @@ OSError: [Errno 36] File name too long: \
 - [About session cookies](https://www.cookieyes.com/blog/session-cookies/)
 - [Free cookie checker](https://www.cookieyes.com/cookie-checker/)
 - [Similar cookie detection project](https://github.com/CookieChecker/CookieCheckSourceCode)
+- [About subprocess](https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module)
 
 ---
 
