@@ -27,20 +27,13 @@ def wait_for_port(host: str, port: int):
 
 # function to launch a browser with specific profile and proxy/CDP settings
 def launch_browser(address: str, port_proxy: int, port_cdp: int):
-    subprocess.run([
-        "google-chrome",
-        f"--user-data-dir=/tmp/profiles/{port_proxy}",
-        f"--remote-debugging-port={port_cdp}",
-        "--no-first-run",
-        "--no-default-browser-check",
-        f"--remote-debugging-address={address}",
-        "--remote-allow-origins=*"],
-        stderr=None,
-        stdout=None,
+    return subprocess.Popen([
+        f"google-chrome --user-data-dir=/tmp/profiles/{port_proxy} --remote-debugging-port={port_cdp} --no-first-run --no-default-browser-check --remote-debugging-address={address} --remote-allow-origins=*  > /dev/null 2>&1 &"],
         shell=True
     )
 
-# Begin scrip ---------------------------------------------------------------------------------------
+
+# Begin script ---------------------------------------------------------------------------------------
 if len(sys.argv) < 4:
     print("Usage: python3 cookies_CDP.py <proxy_address> <proxy_port> <cdp_port> <site1> <site2> ... <siteN>")
 else:    
@@ -51,7 +44,7 @@ else:
     cdp_url = f"http://{address}:{port_cdp}"
 
     # create and launch a browser instance with proxy @1234 and CDP @1235
-    launch_browser(address, port_proxy, port_cdp)
+    p = launch_browser(address, port_proxy, port_cdp)
     wait_for_port(address, port_cdp)
     browser = pychrome.Browser(url=cdp_url)
 
