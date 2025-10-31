@@ -4,7 +4,7 @@ class CookieLogger:
     def __init__(self):
         self.path = "./output"
 
-    def format(self, cookie):
+    def format_cookie(self, cookie: str) -> str:
         return str(cookie).replace("; ", "\n\t")
 
     def response(self, flow):
@@ -15,7 +15,7 @@ class CookieLogger:
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             with open(full_path, 'a') as output:
                 for cookie in cookie_list:
-                    output.write(format(cookie)+'\n')
+                    output.write(self.format_cookie(cookie)+"\n\n")
                 output.close()
 
 addons = [CookieLogger()]

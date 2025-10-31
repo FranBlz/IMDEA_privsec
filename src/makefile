@@ -4,7 +4,7 @@ ADDRESS = 127.0.0.1
 DEV_PORT = 1235
 TMP_FLDR = /tmp/profiles/
 OUTPUT_FLDR = ./output/
-TEMPLATE = ./template_2/
+TEMPLATE = ./template/
 NSSDB_FLDR = $(TMP_FLDR)$(PORT)/.pki/nssdb
 MITM_CERT = /usr/local/share/ca-certificates/mitmproxy.crt
 
@@ -21,7 +21,9 @@ launch:
 	--remote-allow-origins=* --proxy-server="$(ADDRESS):$(PORT)" > /dev/null 2>&1 &
 
 cdp:
-	python3 cookies_CDP.py
+	mkdir -p $(TMP_FLDR)$(PORT)
+	cp -r $(TEMPLATE)* $(TMP_FLDR)$(PORT)/
+	python3 cookies_CDP.py $(ADDRESS) $(PORT) $(DEV_PORT) "https://elpais.com" "https://instagram.com"
 
 proxy:
 	mitmproxy --listen-host $(ADDRESS) -p $(PORT) -s cookies_mitm.py
