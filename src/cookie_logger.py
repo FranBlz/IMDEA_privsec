@@ -1,10 +1,9 @@
 import os
 import sys
-import socket
-import subprocess
 import time
+import socket
 import pychrome  # type: ignore
-from typing import List
+import subprocess
 
 # ---------- helpers ----------
 def format_cookie(cookie):
@@ -27,14 +26,19 @@ def wait_for_port(host: str, port: int):
                 pass
 
 def launch_mitmdump(script_path: str, listen_host: str, listen_port: int):
-    cmd = f"mitmdump -s {script_path} -p {listen_port} --listen-host {listen_host}"
-    return subprocess.Popen(cmd, shell=True)
+    cmd = ["mitmdump", "-s", script_path, "-p", str(listen_port), "--listen-host", listen_host]
+    return subprocess.Popen(cmd, stdout=None, stderr=None)
 
 def launch_browser(address: str, port_proxy: int, port_cdp: int):
-    return subprocess.Popen([
-        f"google-chrome --user-data-dir=/tmp/profiles/{port_proxy} --remote-debugging-port={port_cdp} --no-first-run --no-default-browser-check --remote-debugging-address={address} --remote-allow-origins=*  > /dev/null 2>&1 &"],
-        shell=True
-    )
+    cmd = ["google-chrome",
+           f"--user-data-dir=/tmp/profiles/{port_proxy}",
+           f"--remote-debugging-port={port_cdp}",
+           "--no-first-run",
+           "--no-default-browser-check",
+           f"--remote-debugging-address={address}",
+           "--remote-allow-origins=*",
+           f"--proxy-server={address}:{port_proxy}"]
+    return subprocess.Popen(cmd, stdout=None, stderr=None)
 
 # ---------- main ----------
 if __name__ == "__main__":
@@ -47,7 +51,7 @@ if __name__ == "__main__":
     address = sys.argv[2]
     port_proxy = int(sys.argv[3])
     port_cdp = int(sys.argv[4])
-    sites: List[str] = sys.argv[5:]
+    sites = sys.argv[5:]
     cdp_url = f"http://{address}:{port_cdp}"
 
 
@@ -60,36 +64,23 @@ if __name__ == "__main__":
     # Begin navigation and cookie extraction
     browser = pychrome.Browser(url=cdp_url)
 
-    try:
-        for site in sites:
-            tab = browser.new_tab()
-            tab.start()
-            tab.wait(2)
-            tab.call_method("Network.enable")
-            tab.call_method("Page.navigate", url=site, _timeout=10)
-            tab.wait(8)
+    for site in sites:
+        tab = browser.new_tab()
+        tab.start()
+        tab.wait(2)
+        tab.call_method("Network.enable")
+        tab.call_method("Page.navigate", url=site, _timeout=10)
+        tab.wait(8)
 
-            cookies = tab.call_method("Network.getCookies")
-            os.makedirs("./output", exist_ok=True)
-            with open("./output/CDP_cookies", 'a') as output:
-                for cookie in cookies.get("cookies", []):
-                    output.write(format_cookie(cookie) + '\n')
+        cookies = tab.call_method("Network.getCookies")
+        os.makedirs("./output", exist_ok=True)
+        with open("./output/CDP_cookies", 'a') as output:
+            for cookie in cookies.get("cookies", []):
+                output.write(format_cookie(cookie) + '\n')
 
-            tab.stop()
-            browser.close_tab(tab)
-    except KeyboardInterrupt:
-        print("\n[!] Interrupted by user.")
-    except Exception as e:
-        print("[!] Exception:", e)
-    finally:
-        try:
-            browser_proc.kill()
-        except Exception:
-            pass
-        try:
-            mitm_proc.terminate()
-            time.sleep(1)
-            if mitm_proc.poll() is None:
-                mitm_proc.kill()
-        except Exception:
-            pass
+        tab.stop()
+        browser.close_tab(tab)
+
+    # Cleanup
+    mitm_proc.kill()
+    browser_proc.kill()
