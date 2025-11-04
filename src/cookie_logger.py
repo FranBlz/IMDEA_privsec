@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import time
@@ -6,15 +7,6 @@ import pychrome  # type: ignore
 import subprocess
 
 # ---------- helpers ----------
-def format_cookie(cookie):
-    s = str(cookie)
-    s = s.replace("{", "")
-    s = s.replace("}", "\n")
-    s = s.replace("'", "")
-    s = s.replace(": ", "=")
-    s = s.replace(", ", "\n\t")
-    return s
-
 def wait_for_port(host: str, port: int):
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -76,7 +68,7 @@ if __name__ == "__main__":
         os.makedirs("./output", exist_ok=True)
         with open("./output/CDP_cookies", 'a') as output:
             for cookie in cookies.get("cookies", []):
-                output.write(format_cookie(cookie) + '\n')
+                output.write(str(cookie) + '\n')
 
         tab.stop()
         browser.close_tab(tab)

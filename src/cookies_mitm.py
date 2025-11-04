@@ -1,21 +1,46 @@
+#!/usr/bin/env python3
 import os
+import hashlib
 
 class CookieLogger:
-    def __init__(self):
-        self.path = "./output"
+    # Initialize with base output path
+    def __init__(self, base_path="./output"):
+        self.base_path = base_path
+        self.current_path = "./output/unknown"
+        os.makedirs(self.base_path, exist_ok=True)
 
-    def format_cookie(self, cookie: str) -> str:
-        return str(cookie).replace("; ", "\n\t")
+    # Generate a numeric hash for the full cookie set URL
+    def _numeric_hash_for_url(self, url: str) -> str:
+        h = hashlib.sha256(url.encode("utf-8")).digest()[:8]
+        num = int.from_bytes(h, "big")
+        return str(num)
 
+    # Create directory for top-level site on request
+    def request(self, flow):
+        site = getattr(flow.request, "pretty_host", None)
+        if site in ["www.instagram.com", "elpais.com"]:
+            site_dir = os.path.join(self.base_path, site)
+            os.makedirs(site_dir, exist_ok=True)
+            self.current_path = site_dir
+
+    # Log Set-Cookie headers on response with format ./output/<top-site>/<numeric-hash>.txt
     def response(self, flow):
-        # flow.response.headers.get_all --> list[str]
-        if flow.response and flow.response.headers.get_all("Set-Cookie"):
-            cookie_list = flow.response.headers.get_all("Set-Cookie")
-            full_path = self.path + flow.request.pretty_url.replace("https:/", "")
-            os.makedirs(os.path.dirname(full_path), exist_ok=True)
-            with open(full_path, 'a') as output:
-                for cookie in cookie_list:
-                    output.write(self.format_cookie(cookie)+"\n\n")
-                output.close()
+        if not (hasattr(flow, "response") and flow.response):
+            return
+
+        cookies = flow.response.headers.get_all("Set-Cookie")
+        if not cookies:
+            return
+
+        url = getattr(flow.request, "pretty_url", getattr(flow.request, "url", ""))
+        
+        filename = self._numeric_hash_for_url(url) + ".txt"
+        full_path = os.path.join(self.current_path, filename)
+
+        with open(full_path, "a", encoding="utf-8") as fh:
+            fh.write(f"{url}\n")
+            for c in cookies:
+                fh.write(f"{c}\n")
+            fh.write("\n")
 
 addons = [CookieLogger()]

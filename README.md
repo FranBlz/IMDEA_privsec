@@ -6,19 +6,14 @@ Personal repository dedicated to my internship at IMDEA Software
 
 ## To-Do list
 
-1. Develop a `mitmproxy` extension to record every cookie set by HTTP.
-2. Make `cookies_CDP.py` asynchronous.
-3. Remove hard-coded address and port from framework and enable some sort of automatic selection.
-4. Complete the pipeline so it has simple input for navigation and extension and outputs basic results for each component and its comparison.
-5. Re-read SoK paper and inspect sources to add references and extend last paragraphs of thesis proposal.
-6. Achieve fresh replicability and instrumentation on a browser session.
-7. Check cookie location and readability on Chrome and Firefox.
-8. Read about partitioning cookies.
-9. Read about session cookies and develop a framework to inspect how prevalent they are.
-10. Develop framework to compare HTTP and total cookies set.
-11. Read more about firefox CLI arguments and its devtools protocol.
-12. Improve on cookie parsing in both CDP and mitmproxy scripts.
-13. Solve issues with both CDP and mitmproxy scripts.
+1. Remove hard-coded address and port from framework and enable some sort of automatic selection.
+2. Complete the pipeline so it has simple input for navigation and extension and outputs basic results for each component and its comparison.
+3. Re-read SoK paper and inspect sources to add references and extend last paragraphs of thesis proposal.
+4. Check cookie location and readability on Chrome and Firefox.
+5. Read about partitioning cookies.
+6. Read about session cookies and develop a framework to inspect how prevalent they are.
+7. Improve on cookie parsing in both CDP and mitmproxy scripts.
+8. Find out how to distinguish the real top level domain and log all cookie files on that dir alone.
 
 ---
 
@@ -73,6 +68,7 @@ OSError: [Errno 36] File name too long: \
 6. How to automate setup (make commands) and navigation (python script)?
 7. How to properly choose ports?
 8. Secuential runs of the tool seem to stop working for some reason.
+9. Decided to remove any sort of parsing from the initial cookie_logger script
 
 ---
 
