@@ -2,9 +2,10 @@
 PORT = 1234
 DEV_PORT = 1235
 ADDRESS = 127.0.0.1
+TMP_FLDR = /tmp/profiles/
 OUTPUT_FLDR = ./src/output/
 TEMPLATE = ./src/template_2/
-TMP_FLDR = /tmp/profiles/
+SITES_FILE = ./src/sites.txt
 
 clean:
 	rm -rf $(TMP_FLDR)*
@@ -22,7 +23,7 @@ logger:
 	mkdir -p $(TMP_FLDR)$(PORT)
 	cp -r $(TEMPLATE)* $(TMP_FLDR)$(PORT)/
 	
-	python3 ./src/cookie_logger.py "./src/cookies_mitm.py" $(ADDRESS) $(PORT) $(DEV_PORT) "https://elpais.com" "https://instagram.com" "https://lanacion.com"
+	python3 ./src/cookie_logger.py "./src/cookies_mitm.py" $(ADDRESS) $(PORT) $(DEV_PORT) $(SITES_FILE) $(OUTPUT_FLDR)
 
 proxy:
 	mitmproxy --listen-host $(ADDRESS) -p $(PORT) -s cookies_mitm.py

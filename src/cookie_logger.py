@@ -34,35 +34,42 @@ def launch_browser(address: str, port_proxy: int, port_cdp: int):
 
 # ---------- main ----------
 if __name__ == "__main__":
-    if len(sys.argv) < 6:
-        print("Usage: python3 cookie_logger.py <mitm_script.py> <proxy_address> <proxy_port> <cdp_port> <site1> [site2 ...]")
-        print("Example: python3 cookie_logger.py cookies_mitm.py 127.0.0.1 1234 9222 https://example.com")
+    if len(sys.argv) < 7:
+        print("Usage: python3 cookie_logger.py <mitm_script.py> <proxy_address> <proxy_port> <cdp_port> <sites_file> <output_folder>")
+        print("Example: python3 cookie_logger.py cookies_mitm.py 127.0.0.1 1234 9222 sites.txt ./src/output/")
         sys.exit(1)
 
     mitm_script = sys.argv[1]
     address = sys.argv[2]
     port_proxy = int(sys.argv[3])
     port_cdp = int(sys.argv[4])
-    sites = sys.argv[5:]
     cdp_url = f"http://{address}:{port_cdp}"
 
+    # Transform sites file into list
+    sites_file = sys.argv[5]
+    with open(sites_file, 'r') as f:
+        sites = f.readlines()
+
+    # Ensure output folder exists
+    output_folder = sys.argv[6]
+    os.makedirs(output_folder, exist_ok=True)
 
     # Start mitmdump, wait and launch browser
     mitm_proc = launch_mitmdump(mitm_script, address, port_proxy)
-    time.sleep(3)
+    wait_for_port(address, port_proxy)
     browser_proc = launch_browser(address, port_proxy, port_cdp)
     wait_for_port(address, port_cdp)
 
     # Begin navigation and cookie extraction
     browser = pychrome.Browser(url=cdp_url)
 
+    # For each site, navigate, extract cookies, and save the output present in generic folder into a named folder
     for site in sites:
         tab = browser.new_tab()
         tab.start()
-        tab.wait(2)
         tab.call_method("Network.enable")
         tab.call_method("Page.navigate", url=site, _timeout=10)
-        tab.wait(8)
+        tab.wait(10)
 
         cookies = tab.call_method("Network.getCookies")
         os.makedirs("./src/output", exist_ok=True)
@@ -72,6 +79,9 @@ if __name__ == "__main__":
 
         tab.stop()
         browser.close_tab(tab)
+        os.rename("./src/output/generic", f"./src/output/{site.replace("https://", "")}")
+        time.sleep(2)
+    
 
     # Cleanup
     mitm_proc.kill()

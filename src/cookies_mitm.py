@@ -4,11 +4,9 @@ import hashlib
 
 class CookieLogger:
     # Initialize with base output path
-    def __init__(self, base_path="./src/output"):
+    def __init__(self, base_path="./src/output/generic"):
         self.base_path = base_path
-        self.current_path = "./src/output/unknown"
         os.makedirs(self.base_path, exist_ok=True)
-        os.makedirs(self.current_path, exist_ok=True)
 
     # Generate a numeric hash for the full cookie set URL
     def _numeric_hash_for_url(self, url: str) -> str:
@@ -16,16 +14,9 @@ class CookieLogger:
         num = int.from_bytes(h, "big")
         return str(num)
 
-    # Create directory for top-level site on request
-    def request(self, flow):
-        site = getattr(flow.request, "pretty_host", None)
-        if site in ["www.instagram.com", "elpais.com", "lanacion.com"]:
-            site_dir = os.path.join(self.base_path, site)
-            os.makedirs(site_dir, exist_ok=True)
-            self.current_path = site_dir
-
-    # Log Set-Cookie headers on response with format ./output/<top-site>/<numeric-hash>.txt
+    # Log Set-Cookie headers on response with format ./src/output/generic/<numeric-hash>.txt
     def response(self, flow):
+        os.makedirs(self.base_path, exist_ok=True)
         if not (hasattr(flow, "response") and flow.response):
             return
 
@@ -36,7 +27,7 @@ class CookieLogger:
         url = getattr(flow.request, "pretty_url", getattr(flow.request, "url", ""))
         
         filename = self._numeric_hash_for_url(url) + ".txt"
-        full_path = os.path.join(self.current_path, filename)
+        full_path = f"{self.base_path}/{filename}"
 
         with open(full_path, "a", encoding="utf-8") as fh:
             fh.write(f"{url}\n")
