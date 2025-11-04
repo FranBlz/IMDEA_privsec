@@ -65,8 +65,8 @@ if __name__ == "__main__":
         tab.wait(8)
 
         cookies = tab.call_method("Network.getCookies")
-        os.makedirs("./output", exist_ok=True)
-        with open("./output/CDP_cookies", 'a') as output:
+        os.makedirs("./src/output", exist_ok=True)
+        with open("./src/output/CDP_cookies", 'a') as output:
             for cookie in cookies.get("cookies", []):
                 output.write(str(cookie) + '\n')
 

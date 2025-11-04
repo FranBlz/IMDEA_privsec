@@ -4,10 +4,11 @@ import hashlib
 
 class CookieLogger:
     # Initialize with base output path
-    def __init__(self, base_path="./output"):
+    def __init__(self, base_path="./src/output"):
         self.base_path = base_path
-        self.current_path = "./output/unknown"
+        self.current_path = "./src/output/unknown"
         os.makedirs(self.base_path, exist_ok=True)
+        os.makedirs(self.current_path, exist_ok=True)
 
     # Generate a numeric hash for the full cookie set URL
     def _numeric_hash_for_url(self, url: str) -> str:
@@ -18,7 +19,7 @@ class CookieLogger:
     # Create directory for top-level site on request
     def request(self, flow):
         site = getattr(flow.request, "pretty_host", None)
-        if site in ["www.instagram.com", "elpais.com"]:
+        if site in ["www.instagram.com", "elpais.com", "lanacion.com"]:
             site_dir = os.path.join(self.base_path, site)
             os.makedirs(site_dir, exist_ok=True)
             self.current_path = site_dir
