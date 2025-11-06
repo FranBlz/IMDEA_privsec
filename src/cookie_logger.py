@@ -69,8 +69,10 @@ if __name__ == "__main__":
         tab.start()
         tab.call_method("Network.enable")
         tab.call_method("Page.navigate", url=site, _timeout=10)
-        tab.wait(10)
+        tab.wait(12)
 
+        tab.call_method("Network.emulateNetworkConditions", offline=True, latency=0, downloadThroughput=0, uploadThroughput=0)
+        tab.wait(2)
         cookies = tab.call_method("Network.getCookies")
         os.makedirs("./src/output", exist_ok=True)
         with open("./src/output/CDP_cookies", 'a') as output:
