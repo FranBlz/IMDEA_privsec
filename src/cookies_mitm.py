@@ -14,7 +14,7 @@ class CookieLogger:
         num = int.from_bytes(h, "big")
         return str(num)
 
-    # Log Set-Cookie headers on response with format ./src/output/generic/<numeric-hash>.txt
+    # Log Set-Cookie headers on response
     def response(self, flow):
         os.makedirs(self.base_path, exist_ok=True)
         if not (hasattr(flow, "response") and flow.response):
@@ -24,15 +24,8 @@ class CookieLogger:
         if not cookies:
             return
 
-        url = getattr(flow.request, "pretty_url", getattr(flow.request, "url", ""))
-        
-        filename = self._numeric_hash_for_url(url) + ".txt"
-        full_path = f"{self.base_path}/{filename}"
-
-        with open(full_path, "a", encoding="utf-8") as fh:
-            fh.write(f"{url}\n")
+        with open(f"{self.base_path}/mitm_cookies.txt", "a", encoding="utf-8") as fh:
             for c in cookies:
                 fh.write(f"{c}\n")
-            fh.write("\n")
 
 addons = [CookieLogger()]
