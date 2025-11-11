@@ -37,7 +37,7 @@ def launch_browser(address: str, port_proxy: int, port_cdp: int):
            f"--proxy-server={address}:{port_proxy}"]
     return subprocess.Popen(cmd, stdout=None, stderr=None)
 
-# Auxiliaty function to fecth cookies from sqlite3 database stored in browser profile
+# Auxiliary function to fecth cookies from sqlite3 database stored in browser profile
 def fetch_sqlite3_cookies(profile_path: str):
     conn = sqlite3.connect(os.path.join(profile_path, "Default", "Cookies"))
     conn.row_factory = sqlite3.Row
@@ -96,13 +96,13 @@ if __name__ == "__main__":
 
     # For each site launch a clean browser and mitmdump session and extract CDP and sqlite3 cookies
     for site in sites:
-        # Start mitmdump, wait and launch browser
+        # 1. Start mitmdump and fresh browser instance, use ports as semaphores
         mitm_proc = launch_mitmdump(mitm_script, address, port_proxy)
         wait_for_port(address, port_proxy)
         browser_proc = launch_browser(address, port_proxy, port_cdp)
         wait_for_port(address, port_cdp)
 
-        # Begin navigation and wait for page load
+        # 2. Begin navigation and give time for page load
         browser = pychrome.Browser(url=cdp_url)
         tab = browser.new_tab()
         tab.start()
@@ -110,37 +110,39 @@ if __name__ == "__main__":
         tab.call_method("Page.navigate", url=site, _timeout=10)
         tab.wait(15)
 
-        # Close mitmproxy connection to stop network traffic
+        # 3. Close mitmproxy to stop network traffic
         mitm_proc.kill()
         time.sleep(2)
 
-        # 1. Fetch cookies via CDP
+        # 4. Fetch cookies via CDP
         cdp_cookies = tab.call_method("Network.getAllCookies")
         json_cookies = json.dumps(cdp_cookies["cookies"], indent=4)
         os.makedirs(output_generic, exist_ok=True)
         with open(f"{output_generic}/CDP_cookies", 'a') as output:
             output.write(json_cookies)
 
-        # 2. Fetch cookies via sqlite3 before browser closure
+        # 5. Fetch cookies via sqlite3 before browser closure
         before_cookies = fetch_sqlite3_cookies(f"/tmp/profiles/{port_proxy}")
         with open(f"{output_generic}/sqlite3_cookies_before", 'a') as output:
             output.write(before_cookies)
 
-        # 3. Close browser and reset browser profile
+        # 6. Close browser
         tab.stop()
         browser.close_tab(tab)
         browser_proc.kill()
-        subprocess.Popen(["make", "fresh"], stdout=None, stderr=None)
+        time.sleep(5)
 
-        # 4. Fetch cookies via sqlite3 after browser closure
+        # 7. Fetch cookies via sqlite3 after browser closure
         after_cookies = fetch_sqlite3_cookies(f"/tmp/profiles/{port_proxy}")
         with open(f"{output_generic}/sqlite3_cookies_after", 'a') as output:
             output.write(after_cookies)        
 
-        # 5. Format cookies logged via mitmdump
+        # 8. Format cookies logged via mitmdump
         formatted_cookies = format_cookies(f"{output_generic}/mitm_cookies.txt")
         with open(f"{output_generic}/mitm_cookies_formatted", 'a') as output:
             output.write(formatted_cookies)
 
-        os.rename("./src/output/generic", f"./src/output/{site.replace("https://", "")}")
+        # 9. Save named folder and reset browser profile for next site
+        subprocess.Popen(["make", "fresh"], stdout=None, stderr=None)
+        os.rename(output_generic, f"./src/output/{site.replace("https://", "")}")
         time.sleep(2)

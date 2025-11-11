@@ -32,7 +32,7 @@ logger:
 proxy:
 	mitmproxy --listen-host $(ADDRESS) -p $(PORT) -s cookies_mitm.py
 
-# To be used manually and pipelined
+# To be used manually
 view:
 	sqlite3 $(TMP_FLDR)$(PORT)/Default/Cookies "SELECT host_key, name, expires_utc FROM cookies;"
 
