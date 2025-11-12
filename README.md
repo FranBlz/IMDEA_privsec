@@ -12,12 +12,10 @@ Personal repository dedicated to my internship at IMDEA Software
 4. Restructure `Makefile` and `cookie_logger.py` to avoid over-dependancy and hard coded values.
 5. Revise page loading conditions to avoid using `wait` calls.
 6. Instrument `CDP` via `Selenium` to avoid using iffy python libraries.
-7. Remove google's translate pop-up.
-8. Find out a way to avoid opening the `google` tab on each fresh browser session.
-9. Move the project to `IMDEA's` GitLab.
-10. How to automate the "Accept all cookies option for all webpages" without browser extensions.
-11. Fix pending `TLS`, `pychrome` and `CDP` related errors.
-12. Revise chrome flags to reduce to only impactful ones.
+7. Move the project to `IMDEA's` GitLab.
+8. How to automate the "Accept all cookies option for all webpages" without browser extensions.
+9. Revise chrome flags to reduce to only impactful ones.
+10. Starting the session on the new tab already loads cookies from google bar in new tab.
 
 ---
 
@@ -88,6 +86,13 @@ Uses a secondary key `top_frame_site_key` to partition the cookie jar.
 
 Uses the `expiration_utc` value to determine persistence (0 and very large numbers means session cookies). What about negative values?
 
+### Automatic cookie acceptance
+
+Extensions fail to accept all cookie banners presenting different behaviour from manual browsing and accepting (see images).
+`Intractable Cookie Crumbs` mentions and modifies `BannerClick` which at the same time runs on `Selenium` and `OpenWPM` which runs on `Firefox`.
+`Thou Shalt Not Reject` mentions `Priv-Accept` and `BannerClick` and modifies the latter heavily to detect and interact with `Cookiewalls`.
+`Cookieverse` builds tool on top of `OpenWPM`.
+
 ---
 
 ## Relevant resources
@@ -101,6 +106,8 @@ Uses the `expiration_utc` value to determine persistence (0 and very large numbe
 - [Similar cookie detection project](https://github.com/CookieChecker/CookieCheckSourceCode)
 - [About subprocess](https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module)
 - [Chrome CLI flags](https://peter.sh/experiments/chromium-command-line-switches/)
+- [BannerClick project](https://github.com/bannerclick/bannerclick?tab=readme-ov-file)
+- [OpenWPM project](https://github.com/openwpm/OpenWPM)
 
 ---
 

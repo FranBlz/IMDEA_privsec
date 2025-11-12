@@ -17,9 +17,7 @@ browser:
 	mkdir -p $(TMP_FLDR)$(PORT)
 	cp -r $(TEMPLATE)* $(TMP_FLDR)$(PORT)/
 
-	google-chrome --user-data-dir=$(TMP_FLDR)$(PORT) --no-first-run \
-	--remote-debugging-port=$(DEV_PORT) --remote-debugging-address=$(ADDRESS) \
-	--remote-allow-origins=* --proxy-server="$(ADDRESS):$(PORT)" > /dev/null 2>&1 &
+	google-chrome --user-data-dir=$(TMP_FLDR)$(PORT)
 
 # To be used manually
 logger:
