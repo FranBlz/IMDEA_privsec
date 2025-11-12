@@ -93,6 +93,14 @@ Extensions fail to accept all cookie banners presenting different behaviour from
 `Thou Shalt Not Reject` mentions `Priv-Accept` and `BannerClick` and modifies the latter heavily to detect and interact with `Cookiewalls`.
 `Cookieverse` builds tool on top of `OpenWPM`.
 
+### OpenWPM
+
+- Added `openWPM` repo on `/home/`
+- Installed `conda` and `openWPM` successfully
+- Added `openWPM` as library under the `openWPM` pip profile
+- Added alias for `openWPM` pip profile under `openwpm`
+- Pending tests on `openWPM`
+
 ---
 
 ## Relevant resources
@@ -108,6 +116,7 @@ Extensions fail to accept all cookie banners presenting different behaviour from
 - [Chrome CLI flags](https://peter.sh/experiments/chromium-command-line-switches/)
 - [BannerClick project](https://github.com/bannerclick/bannerclick?tab=readme-ov-file)
 - [OpenWPM project](https://github.com/openwpm/OpenWPM)
+- [Conda Installation](https://www.anaconda.com/docs/getting-started/miniconda/install#linux-2)
 
 ---
 
