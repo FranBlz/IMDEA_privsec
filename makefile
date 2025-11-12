@@ -4,7 +4,7 @@ DEV_PORT = 1235
 ADDRESS = 127.0.0.1
 TMP_FLDR = /tmp/profiles/
 OUTPUT_FLDR = ./src/output/
-TEMPLATE = ./src/template_2/
+TEMPLATE = ./src/template_3/
 SITES_FILE = ./src/sites.txt
 
 # To be used manually

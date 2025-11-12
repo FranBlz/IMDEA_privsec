@@ -17,6 +17,7 @@ Personal repository dedicated to my internship at IMDEA Software
 9. Move the project to `IMDEA's` GitLab.
 10. How to automate the "Accept all cookies option for all webpages" without browser extensions.
 11. Fix pending `TLS`, `pychrome` and `CDP` related errors.
+12. Revise chrome flags to reduce to only impactful ones.
 
 ---
 
@@ -54,6 +55,39 @@ json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 2. Python venv aliased to "activate".
 3. Changed CDP and `mitmdump` ports to avoid collisions.
 
+### Cookies sqlite3 DB
+
+Values:
+
+> 0. |creation_utc|INTEGER|1||0
+> 1. |host_key|TEXT|1||0
+> 2. |top_frame_site_key|TEXT|1||0
+> 3. |name|TEXT|1||0
+> 4. |value|TEXT|1||0
+> 5. |encrypted_value|BLOB|1||0
+> 6. |path|TEXT|1||0
+> 7. |expires_utc|INTEGER|1||0
+> 8. |is_secure|INTEGER|1||0
+> 9. |is_httponly|INTEGER|1||0
+> 10. |last_access_utc|INTEGER|1||0
+> 11. |has_expires|INTEGER|1||0
+> 12. |is_persistent|INTEGER|1||0
+> 13. |priority|INTEGER|1||0
+> 14. |samesite|INTEGER|1||0
+> 15. |source_scheme|INTEGER|1||0
+> 16. |source_port|INTEGER|1||0
+> 17. |last_update_utc|INTEGER|1||0
+> 18. |source_type|INTEGER|1||0
+> 19. |has_cross_site_ancestor|INTEGER|1||0
+
+### Partitioned cookies
+
+Uses a secondary key `top_frame_site_key` to partition the cookie jar.
+
+### Session cookies
+
+Uses the `expiration_utc` value to determine persistence (0 and very large numbers means session cookies). What about negative values?
+
 ---
 
 ## Relevant resources
@@ -66,6 +100,7 @@ json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 - [Free cookie checker](https://www.cookieyes.com/cookie-checker/)
 - [Similar cookie detection project](https://github.com/CookieChecker/CookieCheckSourceCode)
 - [About subprocess](https://docs.python.org/3/library/subprocess.html#using-the-subprocess-module)
+- [Chrome CLI flags](https://peter.sh/experiments/chromium-command-line-switches/)
 
 ---
 

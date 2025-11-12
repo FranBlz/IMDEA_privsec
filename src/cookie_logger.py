@@ -28,13 +28,18 @@ def launch_mitmdump(script_path: str, listen_host: str, listen_port: int):
 # Auxiliaty function to launch Chrome with parameters
 def launch_browser(address: str, port_proxy: int, port_cdp: int):
     cmd = ["google-chrome",
-           f"--user-data-dir=/tmp/profiles/{port_proxy}",
-           f"--remote-debugging-port={port_cdp}",
-           "--no-first-run",
-           "--no-default-browser-check",
-           f"--remote-debugging-address={address}",
-           "--remote-allow-origins=*",
-           f"--proxy-server={address}:{port_proxy}"]
+            f"--user-data-dir=/tmp/profiles/{port_proxy}",
+            f"--remote-debugging-port={port_cdp}",
+            f"--remote-debugging-address={address}",
+            "--remote-allow-origins=*",
+            f"--proxy-server={address}:{port_proxy}",
+            "--disable-background-networking",
+            "--disable-client-side-phishing-detection",
+            "--disable-default-apps",
+            "--disable-sync",
+            "--metrics-recording-only",
+            "--safebrowsing-disable-auto-update",
+            "--disable-component-update"]
     return subprocess.Popen(cmd, stdout=None, stderr=None)
 
 # Auxiliary function to fecth cookies from sqlite3 database stored in browser profile
@@ -42,7 +47,7 @@ def fetch_sqlite3_cookies(profile_path: str):
     conn = sqlite3.connect(os.path.join(profile_path, "Default", "Cookies"))
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT host_key, name, expires_utc FROM cookies")
+    cursor.execute("SELECT host_key, top_frame_site_key, name, expires_utc FROM cookies")
     rows = cursor.fetchall()
     data = [dict(row) for row in rows]
     json_data = json.dumps(data, indent=4)
