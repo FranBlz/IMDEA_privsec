@@ -5,11 +5,13 @@ import json
 import time
 import socket
 import sqlite3
-import pychrome  # type: ignore
 import subprocess
+from selenium import webdriver # type: ignore
+from selenium.webdriver.chrome.options import Options # type: ignore
+from selenium.webdriver.common.by import By # type: ignore
 
 # ---------- helpers ----------
-# Auxiliaty function to wait for ports
+# Auxiliary function to wait for ports
 def wait_for_port(host: str, port: int):
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -20,27 +22,25 @@ def wait_for_port(host: str, port: int):
             except (socket.timeout, ConnectionRefusedError):
                 pass
 
-# Auxiliaty function to launch mitmdump with parameters
+# Auxiliary function to launch mitmdump with parameters
 def launch_mitmdump(script_path: str, listen_host: str, listen_port: int):
     cmd = ["mitmdump", "-s", script_path, "-p", str(listen_port), "--listen-host", listen_host]
     return subprocess.Popen(cmd, stdout=None, stderr=None)
 
-# Auxiliaty function to launch Chrome with parameters
-def launch_browser(address: str, port_proxy: int, port_cdp: int):
-    cmd = ["google-chrome",
-            f"--user-data-dir=/tmp/profiles/{port_proxy}",
-            f"--remote-debugging-port={port_cdp}",
-            f"--remote-debugging-address={address}",
-            "--remote-allow-origins=*",
-            f"--proxy-server={address}:{port_proxy}",
-            "--disable-background-networking",
-            "--disable-client-side-phishing-detection",
-            "--disable-default-apps",
-            "--disable-sync",
-            "--metrics-recording-only",
-            "--safebrowsing-disable-auto-update",
-            "--disable-component-update"]
-    return subprocess.Popen(cmd, stdout=None, stderr=None)
+# Auxiliary function to launch Chrome with parameters using selenium
+def launch_browser(user_data_dir: str, address: str, port_proxy: int, port_cdp: int):
+    chrome_options = Options()
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+    chrome_options.add_argument(f"--proxy-server=http://{address}:{port_proxy}")
+    chrome_options.add_argument(f"--remote-debugging-port={port_cdp}")
+    chrome_options.add_argument(f"--remote-debugging-address={address}")
+    chrome_options.add_argument("--remote-allow-origins=*")
+
+    # Optional preferences (prevents "Chrome is being controlled by automated test software" from hiding UI elements)
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
 
 # Auxiliary function to fecth cookies from sqlite3 database stored in browser profile
 def fetch_sqlite3_cookies(profile_path: str):
@@ -104,50 +104,53 @@ if __name__ == "__main__":
         # 1. Start mitmdump and fresh browser instance, use ports as semaphores
         mitm_proc = launch_mitmdump(mitm_script, address, port_proxy)
         wait_for_port(address, port_proxy)
-        browser_proc = launch_browser(address, port_proxy, port_cdp)
+        browser_proc = launch_browser(f"/tmp/profiles/{port_proxy}", address, port_proxy, port_cdp)
         wait_for_port(address, port_cdp)
 
-        # 2. Begin navigation and give time for page load
-        browser = pychrome.Browser(url=cdp_url)
-        tab = browser.new_tab()
-        tab.start()
-        tab.call_method("Network.enable")
-        tab.call_method("Page.navigate", url=site, _timeout=10)
-        tab.wait(15)
+        # 2. Begin navigation, give time for page load and accept cookie banner
+        browser_proc.get(site.strip())
+        time.sleep(10)
+        browser_proc.find_element(By.XPATH, '//*[@class="pmConsentWall-button"]').click()
+        time.sleep(10)
 
         # 3. Close mitmproxy to stop network traffic
         mitm_proc.kill()
         time.sleep(2)
 
         # 4. Fetch cookies via CDP
-        cdp_cookies = tab.call_method("Network.getAllCookies")
+        cdp_cookies = browser_proc.execute_cdp_cmd("Network.getAllCookies", {})
         json_cookies = json.dumps(cdp_cookies["cookies"], indent=4)
         os.makedirs(output_generic, exist_ok=True)
         with open(f"{output_generic}/CDP_cookies", 'a') as output:
             output.write(json_cookies)
 
-        # 5. Fetch cookies via sqlite3 before browser closure
+        # 5. Fetch cookies via Selenium
+        selenium_cookies = browser_proc.get_cookies()
+        json_cookies = json.dumps(selenium_cookies, indent=4)
+        os.makedirs(output_generic, exist_ok=True)
+        with open(f"{output_generic}/Selenium_cookies", 'a') as output:
+            output.write(json_cookies)
+
+        # 6. Fetch cookies via sqlite3 before browser closure
         before_cookies = fetch_sqlite3_cookies(f"/tmp/profiles/{port_proxy}")
         with open(f"{output_generic}/sqlite3_cookies_before", 'a') as output:
             output.write(before_cookies)
 
-        # 6. Close browser
-        tab.stop()
-        browser.close_tab(tab)
-        browser_proc.kill()
+        # 7. Close browser
+        browser_proc.quit()
         time.sleep(5)
 
-        # 7. Fetch cookies via sqlite3 after browser closure
+        # 8. Fetch cookies via sqlite3 after browser closure
         after_cookies = fetch_sqlite3_cookies(f"/tmp/profiles/{port_proxy}")
         with open(f"{output_generic}/sqlite3_cookies_after", 'a') as output:
             output.write(after_cookies)        
 
-        # 8. Format cookies logged via mitmdump
+        # 9. Format cookies logged via mitmdump
         formatted_cookies = format_cookies(f"{output_generic}/mitm_cookies.txt")
         with open(f"{output_generic}/mitm_cookies_formatted", 'a') as output:
             output.write(formatted_cookies)
 
-        # 9. Save named folder and reset browser profile for next site
+        # 10. Save named folder and reset browser profile for next site
         subprocess.Popen(["make", "fresh"], stdout=None, stderr=None)
         os.rename(output_generic, f"./src/output/{site.replace("https://", "")}")
         time.sleep(2)

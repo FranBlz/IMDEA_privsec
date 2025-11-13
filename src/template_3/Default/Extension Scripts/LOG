@@ -1,2 +1,3 @@
-2025/11/12-10:45:43.381 30ee Creating DB /home/francisco_bolzan/IMDEA_privsec/template_3/Default/Extension Scripts since it was missing.
-2025/11/12-10:45:43.383 30ee Reusing MANIFEST /home/francisco_bolzan/IMDEA_privsec/template_3/Default/Extension Scripts/MANIFEST-000001
+2025/11/13-11:17:08.011 208b Reusing MANIFEST /home/francisco_bolzan/IMDEA_privsec/src/template_3/Default/Extension Scripts/MANIFEST-000001
+2025/11/13-11:17:08.012 208b Recovering log #3
+2025/11/13-11:17:08.012 208b Reusing old log /home/francisco_bolzan/IMDEA_privsec/src/template_3/Default/Extension Scripts/000003.log 
